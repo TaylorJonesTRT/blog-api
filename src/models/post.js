@@ -1,6 +1,6 @@
-const mongoose = requier('mongoose');
+const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const PostSchema = new Schema({
   title: { type: String, required: true },
@@ -11,6 +11,10 @@ const PostSchema = new Schema({
 });
 
 // Virtual for the posts' URL
+// eslint-disable-next-line func-names
 PostSchema.virtual('url').get(function () {
+  // eslint-disable-next-line no-underscore-dangle
   return `/posts${this._id}`;
 });
+
+module.exports = mongoose.model('Post', PostSchema);
