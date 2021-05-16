@@ -14,31 +14,36 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(
-  new LocalStrategy((username, password, done) => {
-    User.findOne({ username }, (err, user) => {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username' });
-      }
-
-      // eslint-disable-next-line no-shadow
-      bcrypt.compare(password, user.password, (err, res) => {
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+    },
+    function (email, password, done) {
+      return User.findOne({ email, password }).then((user) => {
         if (err) {
-          return next(err);
+          return done(err);
         }
-        if (res) {
-          // passwords match, log the user in
-          return done(null, user);
-          // eslint-disable-next-line no-else-return
-        } else {
-          // passwords don't match
-          return done(null, false, { message: 'Incorrect password' });
+        if (!user) {
+          return done(null, false, { message: 'Email not found in our database' });
         }
+        bcrypt.compare(password, user.password, (err, res) => {
+          if (err) {
+            return next(err);
+          }
+          if (res) {
+            // passwords match, log the user in
+            return done(null, user, { message: 'Logged In Successfully!' });
+            // eslint-disable-next-line no-else-return
+          } else {
+            // passwords don't match
+            return done(null, false, { message: 'Incorrect password' });
+          }
+        });
+        return done(null, user, { message: 'Logged In Successfully' });
       });
-    });
-  }),
+    },
+  ),
 );
 
 passport.serializeUser(function (user, done) {
