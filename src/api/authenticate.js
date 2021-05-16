@@ -75,13 +75,23 @@ router.post('/sign-up', (req, res, next) => {
   });
 });
 
-router.post(
-  '/log-in',
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/auth/log-in',
-  }),
-);
+router.post('/login', function (req, res, next) {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({
+        message: 'Something is not right, we could not find what you were looking for',
+        user,
+      });
+    }
+    req.login(suer, { session: false }, (err) => {
+      if (err) {
+        res.send(err);
+      }
+      const token = jwt.sign(user, 'secretsheee');
+      return res.json({ user, token });
+    });
+  })(req, res);
+});
 
 router.get('log-out', (req, res) => {
   req.logout();
