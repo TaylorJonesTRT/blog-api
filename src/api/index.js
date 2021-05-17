@@ -1,8 +1,13 @@
 const express = require('express');
 
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+
 const authenticate = require('./authenticate');
 
 const router = express.Router();
+
+const test = require('./test');
 
 router.get('/', (req, res) => {
   res.json({
@@ -11,5 +16,6 @@ router.get('/', (req, res) => {
 });
 
 router.use('/auth', authenticate);
+router.use('test', passport.authenticate('jwt', { session: false }), test);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
@@ -6,74 +7,34 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const User = require('../models/user');
+
+require('./passport');
 
 const router = express.Router();
 
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+// commented the below out as cannot sign up using rest/api endpoint due
+// to timeout error. For this api will have a test user populated into the db by
+// hand like how I did it in the localLibrary project
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email',
-      passwordField: 'password',
-    },
-    function (email, password, done) {
-      return User.findOne({ email, password }).then((user) => {
-        if (err) {
-          return done(err);
-        }
-        if (!user) {
-          return done(null, false, { message: 'Email not found in our database' });
-        }
-        bcrypt.compare(password, user.password, (err, res) => {
-          if (err) {
-            return next(err);
-          }
-          if (res) {
-            // passwords match, log the user in
-            return done(null, user, { message: 'Logged In Successfully!' });
-            // eslint-disable-next-line no-else-return
-          } else {
-            // passwords don't match
-            return done(null, false, { message: 'Incorrect password' });
-          }
-        });
-        return done(null, user, { message: 'Logged In Successfully' });
-      });
-    },
-  ),
-);
-
-passport.serializeUser(function (user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function (id, done) {
-  // eslint-disable-next-line no-undef
-  User.findById(id, function (err, user) {
-    done(err, user);
-  });
-});
-
-router.post('/sign-up', (req, res, next) => {
-  bcrypt.hash(req.body.password, 10, (err, hashedPassword) => {
-    if (err) {
-      return next(err);
-    }
-    const user = new User({
-      username: req.body.username,
-      password: hashedPassword,
-      // eslint-disable-next-line no-shadow
-    }).save((err) => {
-      if (err) {
-        return next(err);
-      }
-      res.redirect('/');
-    });
-  });
-});
+// router.post('/sign-up', (req, res, next) => {
+//   bcrypt.hash(req.body.password, 1, (err, hashedPassword) => {
+//     if (err) {
+//       return next(err);
+//     }
+//     const user = new User({
+//       username: req.body.username,
+//       password: hashedPassword,
+//     }).save((err) => {
+//       if (err) {
+//         return next(err);
+//       }
+//     });
+//   });
+//   res.send.json('Account Created');
+// });
 
 router.post('/login', function (req, res, next) {
   passport.authenticate('local', { session: false }, (err, user, info) => {
@@ -83,11 +44,11 @@ router.post('/login', function (req, res, next) {
         user,
       });
     }
-    req.login(suer, { session: false }, (err) => {
+    req.login(user, { session: false }, (err) => {
       if (err) {
         res.send(err);
       }
-      const token = jwt.sign(user, 'secretsheee');
+      const token = jwt.sign(user, 'secretsheee', { expiresIn: '1d' });
       return res.json({ user, token });
     });
   })(req, res);

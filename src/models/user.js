@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
-const { Schema } = mongoose.Schema;
+// eslint-disable-next-line prefer-destructuring
+const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-  email: { type: String, required: true, maxLength: 35 },
+  username: { type: String, required: true, maxLength: 35 },
   password: { type: String, required: true, minLength: 8 },
 });
 

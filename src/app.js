@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cors = require('cors');
 
@@ -9,6 +10,9 @@ const middlewares = require('./middlewares');
 const api = require('./api');
 
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(morgan('dev'));
 app.use(helmet());
