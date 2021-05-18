@@ -8,14 +8,16 @@ const passportJWT = require('passport-jwt');
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
+const User = require('./models/user');
+
 passport.use(
   new LocalStrategy(
     {
       usernameField: 'email',
       passwordField: 'password',
     },
-    function (email, password, done) {
-      return User.findOne({ email, password }).then((user) => {
+    function (username, password, done) {
+      return User.findOne({ username }).then((user) => {
         if (err) {
           return done(err);
         }

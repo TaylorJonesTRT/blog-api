@@ -7,13 +7,10 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const passport = require('passport');
-const User = require('../models/user');
-
-require('./passport');
 
 const router = express.Router();
+const passport = require('passport');
+const User = require('../models/user');
 
 // commented the below out as cannot sign up using rest/api endpoint due
 // to timeout error. For this api will have a test user populated into the db by
@@ -46,9 +43,9 @@ router.post('/login', function (req, res, next) {
     }
     req.login(user, { session: false }, (err) => {
       if (err) {
-        res.send(err);
+        return next(err);
       }
-      const token = jwt.sign(user, 'secretsheee', { expiresIn: '1d' });
+      const token = jwt.sign(user, 'secretsheee');
       return res.json({ user, token });
     });
   })(req, res);
