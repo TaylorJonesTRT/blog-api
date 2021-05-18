@@ -7,6 +7,7 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const passport = require('passport');
@@ -33,27 +34,26 @@ const User = require('../models/user');
 //   res.send.json('Account Created');
 // });
 
-router.post('/login', function (req, res, next) {
-  passport.authenticate('local', { session: false }, (err, user, info) => {
-    if (err) {
-      return res.status(400).json({
-        message: 'There was an error',
-        err,
-      });
-    }
-    if (!user) {
-      return res.status(400).json({
-        message: 'There was no user',
-        user,
-      });
-    }
-    req.login(user, { session: false }, (err) => {
-      if (err) {
-        return next(err);
+router.post('/login', async (req, res, next) => {
+  passport.authenticate('login', async (err, user, info) => {
+    try {
+      if (err || !user) {
+        const error = new Error('An error occurred.');
+
+        return next(error);
       }
-      const token = jwt.sign(user, 'secretsheee');
-      return res.json({ user, token });
-    });
+
+      req.login(user, { session: false }, async (error) => {
+        if (error) return next(error);
+
+        const body = { _id: user._id, email: user.email };
+        const token = jwt.sign({ user: body }, 'TOP_SECRET');
+
+        return res.json({ token });
+      });
+    } catch (error) {
+      return next(error);
+    }
   })(req, res, next);
 });
 
