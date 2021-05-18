@@ -13,26 +13,16 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/user');
 
-// commented the below out as cannot sign up using rest/api endpoint due
-// to timeout error. For this api will have a test user populated into the db by
-// hand like how I did it in the localLibrary project
-
-// router.post('/sign-up', (req, res, next) => {
-//   bcrypt.hash(req.body.password, 1, (err, hashedPassword) => {
-//     if (err) {
-//       return next(err);
-//     }
-//     const user = new User({
-//       username: req.body.username,
-//       password: hashedPassword,
-//     }).save((err) => {
-//       if (err) {
-//         return next(err);
-//       }
-//     });
-//   });
-//   res.send.json('Account Created');
-// });
+router.post(
+  '/signup',
+  passport.authenticate('signup', { session: false }),
+  async (req, res, next) => {
+    res.json({
+      message: 'Signup Successful!',
+      usser: req.user,
+    });
+  },
+);
 
 router.post('/login', async (req, res, next) => {
   passport.authenticate('login', async (err, user, info) => {
@@ -46,7 +36,7 @@ router.post('/login', async (req, res, next) => {
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
 
-        const body = { _id: user._id, email: user.email };
+        const body = { _id: user._id, email: user.username };
         const token = jwt.sign({ user: body }, 'TOP_SECRET');
 
         return res.json({ token });
