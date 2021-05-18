@@ -35,9 +35,15 @@ const User = require('../models/user');
 
 router.post('/login', function (req, res, next) {
   passport.authenticate('local', { session: false }, (err, user, info) => {
-    if (err || !user) {
+    if (err) {
       return res.status(400).json({
-        message: 'Something is not right, we could not find what you were looking for',
+        message: 'There was an error',
+        err,
+      });
+    }
+    if (!user) {
+      return res.status(400).json({
+        message: 'There was no user',
         user,
       });
     }
@@ -48,7 +54,7 @@ router.post('/login', function (req, res, next) {
       const token = jwt.sign(user, 'secretsheee');
       return res.json({ user, token });
     });
-  })(req, res);
+  })(req, res, next);
 });
 
 router.get('log-out', (req, res) => {
