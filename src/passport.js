@@ -58,6 +58,7 @@ passport.use(
   new JWTstrategy(
     {
       secretOrKey: 'TOP_SECRET',
+      // need to switch the below to bearerheader
       jwtFromRequest: ExtractJWT.fromUrlQueryParameter('secret_token'),
     },
     async (token, done) => {

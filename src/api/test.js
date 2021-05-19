@@ -7,7 +7,11 @@ const router = express.Router();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
+  res.json({
+    message: 'This is a secure route!',
+    user: req.user,
+    token: req.query.secret_token,
+  });
 });
 
 /* GET user profile. */

@@ -36,7 +36,7 @@ router.post('/login', async (req, res, next) => {
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
 
-        const body = { _id: user._id, email: user.username };
+        const body = { _id: user._id, username: user.username };
         const token = jwt.sign({ user: body }, 'TOP_SECRET');
 
         return res.json({ token });
@@ -47,9 +47,10 @@ router.post('/login', async (req, res, next) => {
   })(req, res, next);
 });
 
-router.get('log-out', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
+// not sure if this actually does anything or not... I think not
+// router.get('log-out', (req, res) => {
+//   req.logout();
+//   res.redirect('/');
+// });
 
 module.exports = router;
