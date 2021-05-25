@@ -1,3 +1,8 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-undef */
+/* eslint-disable func-names */
+/* eslint-disable prefer-arrow-callback */
+/* eslint-disable no-else-return */
 const async = require('async');
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
@@ -17,7 +22,6 @@ exports.showAllPosts = function (req, res, next) {
     });
 };
 exports.createNewPost = [
-  // need to setup all the steps to be taken when it comes to creating a new post
   // Validating and sanitization of fields
   body('title', 'Title must not be empty').trim().isLength({ min: 1 }).escape(),
   body(
@@ -31,7 +35,42 @@ exports.createNewPost = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
-  // Proccessing the request after validation and sanitization
+
+  (req, res, next) => {
+    const activeUser = User.findById(req.user._id, function (err, user) {
+      if (err) {
+        return next(err);
+      } else {
+        return user;
+      }
+    });
+
+    const errors = validationResult(req);
+
+    const blogPost = new Post({
+      title: req.body.title,
+      author: req.user.username,
+      published: req.body.published,
+      datePublished: req.body.datePublished,
+      postBody: req.body.postBody,
+    });
+
+    if (!errors.isEmpty()) {
+      res.json({
+        errors,
+      });
+    } else {
+      blogPost.save(function (err) {
+        if (err) {
+          return next(err);
+        }
+        return res.json({
+          message: 'Post has been submitted!',
+          blogPost,
+        });
+      });
+    }
+  },
 ];
 
 exports.deletePostByID = function (req, res, next) {};

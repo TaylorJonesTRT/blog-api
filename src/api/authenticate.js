@@ -19,7 +19,7 @@ router.post(
   async (req, res, next) => {
     res.json({
       message: 'Signup Successful!',
-      usser: req.user,
+      user: req.user,
     });
   },
 );
@@ -36,10 +36,13 @@ router.post('/login', async (req, res, next) => {
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
 
-        const body = { _id: user._id, username: user.username };
-        const token = jwt.sign({ user: body }, 'TOP_SECRET');
+        const body = { username: user.username, id: user._id };
+        const token = jwt.sign({ username: user.username, id: user._id }, 'TOP_SECRET');
 
-        return res.json({ token });
+        return res.json({
+          body,
+          token,
+        });
       });
     } catch (error) {
       return next(error);

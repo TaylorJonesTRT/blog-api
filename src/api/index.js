@@ -17,6 +17,6 @@ router.get('/', (req, res) => {
 
 router.use('/auth', authenticate);
 router.use('/posts', passport.authenticate('jwt', { session: false }), posts);
-router.use('/test', passport.authenticate('jwt', { session: false }), test);
+// router.use('/test', passport.authenticate('jwt', { session: false }), test);
 
 module.exports = router;

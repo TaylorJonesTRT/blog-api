@@ -54,19 +54,22 @@ passport.use(
   ),
 );
 
+const jwtOptions = {
+  jwtFromRequest: ExtractJWT.fromUrlQueryParameter('secret_token'),
+  secretOrKey: 'TOP_SECRET',
+};
+
 passport.use(
-  new JWTstrategy(
-    {
-      secretOrKey: 'TOP_SECRET',
-      // need to switch the below to bearerheader
-      jwtFromRequest: ExtractJWT.fromUrlQueryParameter('secret_token'),
-    },
-    async (token, done) => {
-      try {
-        return done(null, token.user);
-      } catch (error) {
-        done(error);
+  new JWTstrategy(jwtOptions, function (jwtPayload, done) {
+    User.findOne({ id: jwtPayload.id }, function (err, user) {
+      if (err) {
+        return done(err, false);
       }
-    },
-  ),
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    });
+  }),
 );
